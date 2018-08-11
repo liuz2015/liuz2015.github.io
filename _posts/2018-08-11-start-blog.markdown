@@ -1,6 +1,6 @@
 ---
 layout:     post
-title:      "Liuz2015的第一篇博客"
+title:      "Liuz2015博客开通了"
 subtitle:   "如何快速搭建github博客"
 date:       2018-08-11 10:17:00
 author:     "liuz2015"
@@ -9,7 +9,7 @@ tags:
     - 生活
 ---
 
-> “哇哦，我的博客终于开通啦。 ”
+> “哇哦，Liuz2015的博客终于开通啦。 ”
 
 ### 写在博客开通的时候
 
