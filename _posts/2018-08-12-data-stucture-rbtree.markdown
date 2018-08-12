@@ -2,7 +2,7 @@
 layout:     post
 title:      "搞懂红黑树"
 subtitle:   "领略数据结构之美"
-date:       2018-08-11
+date:       2018-08-12
 author:     "Liuz2015"
 header-img: "img/post-bg-unix-linux.jpg"
 tags:
@@ -87,8 +87,6 @@ void init()//初始化哨兵和根节点
 	root = nil;
 }
 ```
-
-好的，
 
 ## 旋转
 
