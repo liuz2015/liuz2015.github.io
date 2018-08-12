@@ -2,7 +2,7 @@
 layout:     post
 title:      "Liuz2015博客开通了"
 subtitle:   "如何快速搭建github博客"
-date:       2018-08-11 10:17:00
+date:       2018-08-11
 author:     "liuz2015"
 header-img: "img/post-bg-2015.jpg"
 tags:
