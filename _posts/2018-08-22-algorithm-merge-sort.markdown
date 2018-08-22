@@ -8,7 +8,7 @@ header-img: "img/post-bg-unix-linux.jpg"
 tags:
     - 算法
     - 排序
-    - 快速排序
+    - 归并排序
 ---
 
 ## 目录
