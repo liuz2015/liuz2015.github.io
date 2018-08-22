@@ -1,8 +1,8 @@
 ---
 layout:     post
-title:      "搞懂快速排序"
+title:      "搞懂归并排序"
 subtitle:   ""
-date:       2018-08-20
+date:       2018-08-22
 author:     "Liuz2015"
 header-img: "img/post-bg-unix-linux.jpg"
 tags:
