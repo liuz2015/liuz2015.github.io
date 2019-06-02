@@ -38,7 +38,62 @@ int threshold;//阈值 当实际节点个数超过(容量*填充因子)时进行
 
 final float loadFactor;//加载因子
 
+### Node类
+```java
+static class Node<K,V> implements Map.Entry<K,V> {
+    final int hash;
+    final K key;
+    V value;
+    Node<K,V> next;
+
+    Node(int hash, K key, V value, Node<K,V> next) {
+        this.hash = hash;
+        this.key = key;
+        this.value = value;
+        this.next = next;
+    }
+
+    public final K getKey()        { return key; }
+    public final V getValue()      { return value; }
+    public final String toString() { return key + "=" + value; }
+
+    public final int hashCode() {
+        return Objects.hashCode(key) ^ Objects.hashCode(value);
+    }
+
+    public final V setValue(V newValue) {
+        V oldValue = value;
+        value = newValue;
+        return oldValue;
+    }
+
+    public final boolean equals(Object o) {
+        if (o == this)
+            return true;
+        if (o instanceof Map.Entry) {
+            Map.Entry<?,?> e = (Map.Entry<?,?>)o;
+            if (Objects.equals(key, e.getKey()) &&
+                Objects.equals(value, e.getValue()))
+                return true;
+        }
+        return false;
+    }
+}
+```
+这个类用来存储数据，通过这个类构建数组，就是map中的核心容器，而在Java8中，又对这个类进一步扩展，实现红黑树节点TreeNode，来应对数组的某个位置中元素过多的情况。
+
 ## 方法实现
+
+### 基础：哈希值的计算
+
+HashMap是以hash操作作为散列依据。但是又与传统的hash存在着少许的优化。
+```java
+static final int hash(Object key) {
+        int h;
+        return (key == null) ? 0 : (h = key.hashCode()) ^ (h >>> 16);
+    }
+```
+其hash值是key的hashcode与其hashcode右移16位的异或结果。在put方法中，将取出的hash值与当前的hashmap容量-1进行与运算。得到的就是位桶的下标。那么为何需要使用key.hashCode() ^ h>>>16的方式来计算hash值呢。其实从微观的角度来看，这种方法与直接去key的哈希值返回在功能实现上没有差别。但是由于最终获取下表是对二进制数组最后几位的与操作。所以直接取hash值会丢失高位的数据，从而增大冲突引起的可能。由于hash值是32位的二进制数。将高位的16位于低位的16位进行异或操作，即可将高位的信息存储到低位。因此该函数也叫做扰乱函数。目的就是减少冲突出现的可能性。而官方给出的测试报告也验证了这一点。直接使用key的hash算法与扰乱函数的hash算法冲突概率相差10%左右。
 
 ### 初始化
 
@@ -284,11 +339,27 @@ final Node<K,V>[] resize() {
 }
 ```
 
+该方法用于对map进行扩容。
+- 判断原容量和阈值的大小，为0则进行初始化，过大则直接返回。
+- 将原容量oldCap和阈值oldThr乘以二得到newCap和newThr，代码使用了移位操作，更高效。
+- 创建一个新的容器（新数组newTab），长度设置为newCap。
+- 对原容器（数组）进行遍历，对遍历到的节点，先判断其类型。
+- 若为红黑树节点，调用split方法。
+- 若为链表节点，则继续进行遍历，重新计算位置并放入。
+- 计算位置的方法是，将同一桶中的元素根据(e.hash & oldCap)是否为0进行分割成两个不同的链表，为0就直接使用原索引，不为0说明hash值高位必不为0，在新数组中要向后移动oldCap的距离。
 
 
 ## 总结
 
 利用散列表的特性，hashMap在存取数据时可以做到O(1)的时间复杂度，不过当出现哈希碰撞，在一个桶里面，之前的实现方法都是使用链表，这就导致了最坏的情况下，存取数据的时间复杂度会是O(n)，而在Java8实现中，当链表长度过长，会将其调整为红黑树，使得时间复杂度可以控制在O(logn)，从而优化了hashMap的性能。
+
+Java7 与 Java8 中HashMap的对比：
+- Java8为**红黑树**+链表+数组的形式
+- hash值的计算方式不同
+- Java7table在创建hashmap时分配空间，而1.8在put的时候分配，如果table为空，则为table分配空间。
+- 在发生冲突，插入链中时，7是头插法，8是尾插法。
+- 在resize操作中，7需要重新进行index的计算，而8不需要，通过判断相应的位是0还是1，要么依旧是原index，要么是oldCap + 原index
+
 
 ## 参考资料
 - java源码
