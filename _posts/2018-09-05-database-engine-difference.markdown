@@ -116,6 +116,7 @@ InnoDB：如果你的数据执行大量的INSERT或UPDATE，出于性能方面�
 ### 11、 外键
 
 MyISAM：不支持
+
 InnoDB：支持
 
 

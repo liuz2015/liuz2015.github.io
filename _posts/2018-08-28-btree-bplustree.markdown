@@ -32,7 +32,8 @@ tags:
 - 除根结点之外 ，每个结点至少有$m/2$棵子树；
 - 所有叶结点都出现在同一层上 ；
 - 所有结点 都包含如下形式的数据 ：(n,A0 ,K1 ,A1 ,K2 ,A2 , … ,Kn,An )，其中 n 为关键字的个数， Ki ( i=1, … , n ) 为关键字，且满足 K 1<K 2<…<K n 。 Ai ( i=0,1, … , n ) 为指向子树根结点的指针 ，且对于 i=1,2, … , n-1， Ai 所指子树上各结点的一切关键字均大于 Ki ，而小于 Ki +1 。 A 0 所指子树上各结点的一切关键字均小于 K 1 ， An 所指子树上各结点的一切关键字均大于 Kn 。对于叶结点，所有指针 Ai 皆为空。对于具有 n 个关键字的非叶结点，将有 n+1棵子树。
-<div align=center>![5阶B树](/img/in-post/DS-btree-bplustree/pic1.png)</div>
+- 
+![5阶B树](/img/in-post/DS-btree-bplustree/pic1.png)
 <center>图1 5阶B树</center>
 图1所示的是一棵5阶（m=5）B树。
 当 m =3 时，每个结点中最多包含两个关键字、三个指针，最少时可以只含有一个关键字、两个指针，所以 3 阶 B 树又称为 2-3 树。
@@ -55,7 +56,7 @@ B树的生成过程就是一个个关键字的插入过程。
 
 一棵5阶B树的生成过程如图2所示。
 
-<div align=center>![生成过程](../img/in-post/DS-btree-bplustree/pic2.png)</div>
+![生成过程](/img/in-post/DS-btree-bplustree/pic2.png)
 <center>图2 生成过程</center>
 
 
