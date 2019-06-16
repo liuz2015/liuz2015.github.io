@@ -7,7 +7,7 @@ author:     "Liuz2015"
 header-img: "img/post-bg-unix-linux.jpg"
 tags:
     - 设计模式
-    - 观察者模式
+    - 桥模式
 ---
 
 ## 目录
