@@ -1,0 +1,759 @@
+---
+layout:     post
+title:      "Java IO的学习与使用"
+subtitle:   ""
+date:       2018-12-15
+author:     "Liuz2015"
+header-img: "img/post-bg-unix-linux.jpg"
+tags:
+    - Java
+    - IO
+---
+
+
+## 目录
+- [一、IO流概述](#一、IO流概述)
+- [二、字符流](#二、字符流)
+- [三、缓冲区](#三、缓冲区)
+- [四、字节流](#四、字节流)
+- [五、流操作规律](#五、流操作规律)
+- [参考资料](#参考资料)
+
+## 一、IO流概述
+### 概述：
+IO流简单来说就是Input和Output流，IO流主要是用来处理设备之间的数据传输，Java对于数据的操作都是通过流实现，而java用于操作流的对象都在IO包中。
+###分类：
+按操作数据分为：字节流和字符流。 如：Reader和InpurStream
+按流向分：输入流和输出流。如：InputStream和OutputStream
+IO流常用的基类：
+* InputStream，OutputStream
+字符流的抽象基类：
+* Reader，Writer
+由上面四个类派生的子类名称都是以其父类名作为子类的后缀：
+如：FileReader和FileInputStream
+## 二、字符流
+1. 字符流简介：
+* 字符流中的对象融合了编码表，也就是系统默认的编码表。我们的系统一般都是GBK编码。
+* 字符流只用来处理文本数据，字节流用来处理媒体数据。
+* 数据最常见的表现方式是文件，字符流用于操作文件的子类一般是FileReader和FileWriter。
+2.字符流读写：
+注意事项：
+* 写入文件后必须要用flush()刷新。
+* 用完流后记得要关闭流
+* 使用流对象要抛出IO异常
+ 
+* 定义文件路径时，可以用“/”或者“\\”。
+* 在创建一个文件时，如果目录下有同名文件将被覆盖。
+* 在读取文件时，必须保证该文件已存在，否则出异常
+示例1：在硬盘上创建一个文件,并写入一些文字数据
+ 
+```java
+class FireWriterDemo {  
+    public static void main(String[] args) throws IOException {             //需要对IO异常进行处理   
+  
+        //创建一个FileWriter对象，该对象一被初始化就必须要明确被操作的文件。  
+        //而且该文件会被创建到指定目录下。如果该目录有同名文件，那么该文件将被覆盖。  
+  
+        FileWriter fw = new FileWriter("F:\\1.txt");//目的是明确数据要存放的目的地。  
+  
+        //调用write的方法将字符串写到流中  
+        fw.write("hello world!");  
+      
+        //刷新流对象缓冲中的数据，将数据刷到目的地中  
+        fw.flush();  
+  
+        //关闭流资源，但是关闭之前会刷新一次内部缓冲中的数据。当我们结束输入时候，必须close();  
+        fw.write("first_test");  
+        fw.close();  
+        //flush和close的区别：flush刷新后可以继续输入，close刷新后不能继续输入。  
+  
+    }  
+}  
+```
+示例2：FileReader的reade()方法.
+要求：用单个字符和字符数组进行分别读取
+ 
+```java
+class FileReaderDemo {  
+    public static void main(String[] args) {  
+        characters();  
+    }  
+/*****************字符数组进行读取*********************/  
+private static void characters() {  
+
+    try {  
+
+        FileReader fr = new FileReader("Demo.txt");  
+        char []  buf = new char[6];   
+        //将Denmo中的文件读取到buf数组中。  
+        int num = 0;      
+        while((num = fr.read(buf))!=-1) {  
+
+            //String(char[] value , int offest,int count) 分配一个新的String,包含从offest开始的count个字符  
+            sop(new String(buf,0,num));  
+        }  
+        sop('\n');  
+        fr.close();  
+    }  
+    catch (IOException e) {  
+        sop(e.toString());  
+    }  
+}  
+
+/*****************单个字母读取*************************/  
+private static void singleReader() {  
+        
+    try {  
+
+        //创建一个文件读取流对象，和指定名称的文件关联。  
+        //要保证文件已经存在，否则会发生异常：FileNotFoundException  
+        FileReader fr = new FileReader("Demo.txt");  
+
+        
+        //如何调用读取流对象的read方法？  
+        //read()方法，一次读取一个字符，并且自动往下读。如果到达末尾则返回-1  
+        int ch = 0;  
+        while ((ch=fr.read())!=-1) {  
+            sop((char)ch);  
+        }  
+        sop('\n');  
+        fr.close();  
+
+
+        /*int ch = fr.read(); 
+        sop("ch=" + (char)ch); 
+
+        int ch2 = fr.read(); 
+        sop("ch2=" + (char)ch2); 
+
+        //使用结束注意关闭流 
+        fr.close(); */    
+            
+
+
+    }  
+    catch (IOException e) {  
+        sop(e.toString());  
+    }  
+}  
+  
+  
+/**********************Println************************/  
+    private static void sop(Object obj) {  
+        System.out.print(obj);  
+    }  
+}  
+```
+示例3：对已有文件的数据进行续写
+```java
+import java.io.*;  
+  
+class  FileWriterDemo3 {  
+    public static void main(String[] args) {  
+          
+        try {  
+            //传递一个参数,代表不覆盖已有的数据。并在已有数据的末尾进行数据续写  
+            FileWriter fw = new FileWriter("F:\\java_Demo\\day9_24\\demo.txt",true);  
+            fw.write(" is charactor table?");  
+            fw.close();  
+        }  
+        catch (IOException e) {  
+            sop(e.toString());  
+        }  
+          
+    }  
+  
+/**********************Println************************/  
+    private static void sop(Object obj)  
+    {  
+        System.out.println(obj);  
+    }  
+}  
+```
+
+
+练习：
+将F盘的一个文件复制到E盘。 
+
+思考：
+其实就是将F盘下的文件数据存储到D盘的一个文件中。
+
+步骤：
+
+1.在D盘创建一个文件，存储F盘中文件的数据。
+
+2.定义读取流和F：盘文件关联。
+
+3.通过不断读写完成数据存储。
+
+4.关闭资源。
+
+源码：
+```java
+import java.io.*;  
+import java.util.Scanner;  
+  
+class CopyText {  
+    public static void main(String[] args) throws IOException {  
+        sop("请输入要拷贝的文件的路径:");  
+        Scanner in = new Scanner(System.in);  
+        String source = in.next();  
+        sop("请输入需要拷贝到那个位置的路径以及生成的文件名:");  
+        String destination = in.next();  
+        in.close();  
+        CopyTextDemo(source,destination);  
+  
+    }  
+  
+/*****************文件Copy*********************/  
+    private static void CopyTextDemo(String source,String destination) {  
+  
+        try {  
+            FileWriter fw = new FileWriter(destination);  
+            FileReader fr = new FileReader(source);  
+            char []  buf = new char[1024];   
+            //将Denmo中的文件读取到buf数组中。  
+            int num = 0;      
+            while((num = fr.read(buf))!=-1) {  
+                               //String(char[] value , int offest,int count) 分配一个新的String,包含从offest开始的count个字符  
+                fw.write(new String(buf,0,num));  
+            }  
+            fr.close();  
+            fw.close();  
+        }  
+        catch (IOException e) {  
+            sop(e.toString());  
+        }  
+    }  
+  
+  
+  
+/**********************Println************************/  
+    private static void sop(Object obj) {  
+        System.out.println(obj);  
+    }  
+}  
+```
+## 三、缓冲区
+### 1.字符流的缓冲区：BufferedReader和BufferedWreiter
+* 缓冲区的出现时为了提高流的操作效率而出现的.
+* 需要被提高效率的流作为参数传递给缓冲区的构造函数
+* 在缓冲区中封装了一个数组，存入数据后一次取出
+BufferedReader示例：
+读取流缓冲区提供了一个一次读一行的方法readline，方便对文本数据的获取。
+readline()只返回回车符前面的字符，不返回回车符。如果是复制的话，必须加入newLine()，写入回车符
+newLine()是java提供的多平台换行符写入方法。
+ 
+```java
+import java.io.*;  
+  
+  
+class BufferedReaderDemo {  
+    public static void main(String[] args)  throws IOException {  
+  
+        //创建一个字符读取流流对象，和文件关联  
+        FileReader rw = new FileReader("buf.txt");  
+  
+        //只要将需要被提高效率的流作为参数传递给缓冲区的构造函数即可  
+        BufferedReader brw = new BufferedReader(rw);  
+  
+          
+        for(;;) {  
+            String s = brw.readLine();  
+            if(s==null) break;  
+            System.out.println(s);  
+        }  
+          
+        brw.close();//关闭输入流对象  
+  
+    }  
+}  
+```
+ 
+BufferedWriter示例：
+ 
+```java
+import java.io.*;  
+  
+  
+class BufferedWriterDemo {  
+    public static void main(String[] args)  throws IOException {  
+  
+        //创建一个字符写入流对象  
+        FileWriter fw = new FileWriter("buf.txt");  
+  
+        //为了提高字符写入效率，加入了缓冲技术。  
+        //只要将需要被提高效率的流作为参数传递给缓冲区的构造函数即可  
+        BufferedWriter bfw = new BufferedWriter(fw);  
+  
+        //bfw.write("abc\r\nde");  
+        //bfw.newLine();               这行代码等价于bfw.write("\r\n"),相当于一个跨平台的换行符  
+        //用到缓冲区就必须要刷新  
+        for(int x = 1; x < 5; x++) {  
+            bfw.write("abc");  
+            bfw.newLine();                  //java提供了一个跨平台的换行符newLine();  
+            bfw.flush();  
+        }  
+  
+  
+  
+        bfw.flush();                                                //刷新缓冲区  
+        bfw.close();                                                //关闭缓冲区，但是必须要先刷新  
+  
+        //注意，关闭缓冲区就是在关闭缓冲中的流对象  
+        fw.close();                                                 //关闭输入流对象  
+  
+    }  
+}  
+```
+### 2.装饰设计模式
+要求：自定义一些Reader类，读取不同的数据(装饰和继承的区别)
+```
+MyReader //专门用于读取数据的类
+    |--MyTextReader
+        |--MyBufferTextReader
+    |--MyMediaReader
+        |--MyBufferMediaReader
+    |--MyDataReader
+        |--MyBufferDataReader
+```
+如果将他们抽取出来，设计一个MyBufferReader，可以根据传入的类型进行增强
+```java
+class MyBufferReader {
+
+    MyBufferReader (MyTextReader text) {}
+    MyBufferReader (MyMediaReader media) {}
+    MyBufferReader (MyDataReader data) {}
+}
+```
+但是上面的类拓展性很差。找到其参数的共同类型，通过多态的形式，可以提高拓展性
+```java
+class MyBufferReader  extends MyReader{
+    private MyReader r;                        //从继承变为了组成模式  装饰设计模式
+    MyBufferReader(MyReader r) {}
+}
+```
+优化后的体系：
+```
+    |--MyTextReader
+    |--MyMediaReader
+    |--MyDataReader
+    |--MyBufferReader        
+    //增强上面三个。装饰模式比继承灵活，避免继承体系的臃肿。降低类与类之间的耦合性
+```
+装饰类只能增强已有的对象，具备的功能是相同的。所以装饰类和被装饰类属于同一个体系
+
+MyBuffereReader类：  自己写一个MyBuffereReader类，功能与BuffereReader相同
+```java
+class MyBufferedReader1  extends Reader{               
+    private Reader r;  
+    MyBufferedReader1(Reader r){  
+        this.r  = r;  
+    }  
+  
+    //一次读一行数据的方法  
+    public String myReaderline()  throws IOException {  
+        //定义一个临时容器，原BufferReader封装的是字符数组。  
+        //为了演示方便。定义一个StringBuilder容器。最终要将数据变成字符串  
+        StringBuilder sb = new StringBuilder();  
+        int ch = 0;  
+        while((ch = r.read()) != -1)  
+        {  
+            if(ch == '\r')   
+                continue;  
+            if(ch == '\n')                    //遇到换行符\n,返回字符串  
+                return sb.toString();  
+            else  
+            sb.append((char)ch);  
+        }  
+        if(sb.length()!=0)                    //当最后一行不是以\n结束时候，这里需要判断  
+            return sb.toString();  
+        return null;  
+    }  
+    /* 
+    需要覆盖Reader中的抽象方法close()，read(); 
+    */  
+    public void close()throws IOException {  
+        r.close();  
+    }  
+  
+    public int read(char[] cbuf,int off, int len)throws IOException {   //覆盖read方法  
+        return r.read(cbuf,off,len);  
+    }  
+  
+    public void myClose() throws IOException{  
+        r.close();  
+    }  
+}  
+``` 
+ 
+ 
+ 
+## 四、字节流
+### 1.概述：
+ 
+1、字节流和字符流的基本操作是相同的，但是要想操作媒体流就需要用到字节流。
+
+2、字节流因为操作的是字节，所以可以用来操作媒体文件。（媒体文件也是以字节存储的）
+
+3、读写字节流：InputStream   输入流（读）和OutputStream  输出流（写）
+
+4、字节流操作可以不用刷新流操作。
+
+5、InputStream特有方法：
+        int available();//返回文件中的字节个数
+
+注：可以利用此方法来指定读取方式中传入数组的长度，从而省去循环判断。但是如果文件较大，而虚拟机启动分配的默认内存一般为64M。当文件过大时，此数组长度所占内存空间就会溢出。所以，此方法慎用，当文件不大时，可以使用。
+
+练习：
+需求：复制一张图片F:\java_Demo\day9_28\1.BMP到F:\java_Demo\day9_28\2.bmp
+```java
+import java.io.*;  
+  
+  
+class CopyPic {  
+    public static void main(String[] args){  
+        copyBmp();  
+        System.out.println("复制完成");  
+    }  
+  
+    public static void copyBmp() {  
+  
+        FileInputStream fis = null;  
+        FileOutputStream fos = null;  
+        try {  
+            fis = new FileInputStream("F:\\java_Demo\\day9_28\\1.bmp");             //写入流关联文件  
+            fos = new FileOutputStream("F:\\java_Demo\\day9_28\\2.bmp");            //读取流关联文件  
+            byte[] copy = new byte[1024];  
+            int len = 0;  
+            while((len=fis.read(copy))!=-1) {  
+            fos.write(copy,0,len);  
+            }  
+        }  
+        catch (IOException e) {  
+            e.printStackTrace();  
+            throw new RuntimeException("复制文件异常");  
+        }  
+        finally {  
+            try {  
+                if(fis!=null) fis.close();  
+            }  
+            catch (IOException e) {  
+                e.printStackTrace();  
+                throw new RuntimeException("读取流");  
+            }  
+        }  
+          
+    }  
+  
+}  
+```
+1.字节流缓冲区
+* 字节流缓冲区跟字符流缓冲区一样，也是为了提高效率。
+
+
+注意事项：
+1.read()：会将字节byte()提升为int型值
+
+2.write()：会将int类型转换为byte()类型，保留最后的8位。
+
+练习：
+
+1.复制MP3文件   1.MP3 -->  2.MP3
+
+2.自己写一个MyBufferedInputStream缓冲类，提升复制速度
+代码：
+```java
+import java.io.*;  
+  
+  
+//自己的BufferedInputStream  
+class MyBufferedInputStream  {  
+    private InputStream in;                         //定义一个流对象  
+    private byte [] buf = new byte[1024*4];  
+    private int count = 0,pos = 0;  
+    public MyBufferedInputStream(InputStream in){  
+        this.in = in;  
+    }  
+  
+    public  int MyRead() throws IOException{  
+        if(count==0) {              //当数组里的数据为空时候，读入数据  
+            count = in.read(buf);  
+            pos = 0;  
+            byte b = buf[pos];  
+            count--;  
+            pos++;  
+            return b&255;       //提升为int类型，在前面三个字节补充0。避免1111 1111 1111 1111  
+        }  
+        else if(count > 0) {  
+            byte b = buf[pos];  
+            pos++;  
+            count--;  
+            return b&0xff;      //提升为int类型，在前面三个字节补充0。避免1111 1111 1111 1111  
+        }  
+        return -1;  
+    }  
+  
+    public void myClose() throws IOException{  
+        in.close();  
+    }  
+}  
+
+class BufferedCopyDemo {  
+    public static void main(String[] args) {  
+        long start = System.currentTimeMillis();  
+        copy();  
+        long end = System.currentTimeMillis();  
+        System.out.println("时间:"+(end-start)+"ms");  
+  
+  
+        start = System.currentTimeMillis();  
+        copy1();  
+        end = System.currentTimeMillis();  
+        System.out.println("时间:"+(end-start)+"ms");  
+    }   
+  
+public static void copy1() {                //    应用自己的缓冲区缓冲数据  
+  
+        MyBufferedInputStream bis = null;  
+        BufferedOutputStream  bos = null;  
+        try {  
+            bis = new MyBufferedInputStream(new FileInputStream("马旭东-入戏太深.mp3"));//匿名类，传入一个InputStream流对象  
+            bos = new BufferedOutputStream(new FileOutputStream("3.mp3"));  
+            int buf = 0;  
+            while((buf=bis.MyRead())!=-1) {  
+                bos.write(buf);  
+            }  
+        }  
+        catch (IOException e) {  
+            e.printStackTrace();  
+            throw new RuntimeException("复制失败");  
+        }  
+        finally {  
+            try {  
+                if(bis!=null)  {  
+                    bis.myClose();  
+                    bos.close();  
+                }  
+            }  
+            catch (IOException e) {  
+                e.printStackTrace();  
+            }  
+  
+        }  
+    }  
+}   
+```
+## 五、流操作规律
+1.键盘读取，控制台打印。
+
+System.out: 对应的标准输出设备：控制台  //它是PrintStream对象，（PrintStream：打印流。OutputStream的子类）
+
+System.in: 对应的标准输入设备：键盘     //它是InputStream对象
+
+示例：
+```java
+ 
+/*================从键盘录入流，打印到控制台上================*/  
+    public static void InOutDemo(){  
+        //键盘的最常见的写法  
+        BufferedReader bufr = null;  
+        BufferedWriter bufw = null;  
+        try {  
+              
+            /*InputStream ips = System.in;        //从键盘读入输入字节流 
+            InputStreamReader fr = new InputStreamReader(ips);             //将字节流转成字符流 
+            bufr = new BufferedReader(fr);  */                 //将字符流加强，提升效率  
+  
+              
+            bufr = new BufferedReader(new InputStreamReader(System.in));            //匿名类。InputSteamReader:读取字节并将其解码为字符  
+            bufw = new BufferedWriter(new OutputStreamWriter(System.out));      //OutputStreamWriter:要写入流中的字符编码成字节  
+            String line = null;  
+            while((line = bufr.readLine())!=null){  
+                if("over".equals(line)) break;  
+                bufw.write(line.toUpperCase());                     //打印  
+                bufw.newLine();                                     //为了兼容，使用newLine()写入换行符  
+                bufw.flush();                                       //必须要刷新。不然不会显示  
+            }  
+            if(bufw!=null) {  
+                bufr.close();  
+                bufw.close();  
+            }  
+        }  
+        catch (IOException e) {  
+            e.printStackTrace();  
+        }  
+    }  
+}  
+```
+
+
+1. 整行录入
+1.从键盘录入数据，并存储到文件中。
+2. 我们在键盘录入的是时候，read()方法是一个一个录入的，能不能整行的录入呢？这时候我们想到了BufferedReader中ReadLine()方法。
+3. 转换流
+为了让字节流可以使用字符流中的方法，我们需要转换流。
+ 1. InputStreamReader:字节流转向字符流；
+  a、获取键盘录入对象。
+              InputStream in=System.in;
+  b、将字节流对象转成字符流对象，使用转换流。
+              InputStreamReaderisr=new InputStreamReader(in);
+  c、为了提高效率，将字符串进行缓冲区技术高效操作。使用BufferedReader
+              BufferedReaderbr=new BufferedReader(isr);
+//键盘录入最常见写法
+              BufferedReaderin=new BufferedReader(new InputStreamReader(System.in));
+
+2.OutputStreamWriter:字符流通向字节流
+示例：
+```java
+ 
+/*================把键盘录入的数据存到一个文件中==============*/  
+    public static void inToFile() {  
+            //键盘的最常见的写法  
+        BufferedReader bufr = null;  
+        BufferedWriter bufw = null;  
+        try {  
+              
+            /*InputStream ips = System.in;        //从键盘读入输入字节流 
+            InputStreamReader fr = new InputStreamReader(ips);             //将字节流转成字符流 
+            bufr = new BufferedReader(fr);  */                 //将字符流加强，提升效率  
+  
+              
+            bufr = new BufferedReader(new InputStreamReader(System.in));            //匿名类。InputSteamReader:读取字节并将其解码为字符  
+            bufw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("out.txt")));     //OutputStreamWriter:要写入流中的字符编码成字节  
+            String line = null;  
+            while((line = bufr.readLine())!=null){  
+                if("over".equals(line)) break;  
+                bufw.write(line.toUpperCase());                     //打印  
+                bufw.newLine();                                     //为了兼容，使用newLine()写入换行符  
+                bufw.flush();                                       //必须要刷新。不然不会显示  
+            }  
+            if(bufw!=null) {  
+                bufr.close();  
+                bufw.close();  
+            }  
+        }  
+        catch (IOException e) {  
+            e.printStackTrace();  
+        }  
+    }  
+```
+
+ 
+1. 流操作基本规律
+为了控制格式我将其写入了Java代码段中，如下：
+示例1：文本 ~ 文本
+
+
+流操作的基本规律。  
+一、两个明确：(明确体系)  
+1. 明确源和目的  
+    源：输入流  InputStream  Reader  
+    目的：输出流  OutputStream Writer  
+  
+2. 操作的数据是否是纯文本  
+    是： 字符流  
+    否： 字节流  
+二、明确体系后要明确具体使用的对象  
+    通过设备区分：内存，硬盘，键盘  
+    目的设备：内存，硬盘，控制台  
+  
+  
+示例1：将一个文本文件中的数据存储到另一个文件中: 复制文件  
+    一、明确体系  
+        源：文件-->读取流-->(InputStream和Reader)  
+        是否是文本：是-->Reader  
+          
+          
+        目的：文件-->写入流-->(OutputStream Writer)  
+        是否纯文本：是-->Writer  
+      
+    二、 明确设备  
+        源：Reader  
+            设备：硬盘上一个文本文件 --> 子类对象为：FileReader  
+                FileReader fr = new FileReader("Goods.txt");  
+              
+            是否提高效率：是-->加入Reader中的缓冲区：BufferedReader  
+                BufferedReader bufr = new BufferedReader(fr);  
+                  
+        目的：Writer  
+            设备：键盘上一个文本文件 --> 子类对象：FileWriter  
+                FileWriter fw = new FileWriter("goods1.txt");  
+            是否提高效率：是-->加入Writer的缓冲区：BufferedWriter  
+                BufferedWriter bufw = new BufferedWriter(fw);  
+              
+              
+              
+示例2：将一个图片文件数据复制到另一个文件中：复制文件  
+    一、明确体系  
+        源：文件-->读取流-->(InputStream和Reader)  
+        是否是文本：否-->InputStream  
+          
+          
+        目的：文件-->写入流-->(OutputStream Writer)  
+        是否纯文本：否-->OutputStream  
+      
+    二、 明确设备  
+        源：InputStream  
+            设备：硬盘上一个媒体文件 --> 子类对象为：FileInputStream  
+                FileInputStream fis = new FileInputStream("Goods.txt");  
+              
+            是否提高效率：是-->加入InputStream中的缓冲区：BufferedInputStream  
+                BufferedInputStream bufi = new BufferedInputStream(fis);  
+                  
+        目的：OutputStream  
+            设备：键盘上一个媒体文件 --> 子类对象：FileOutputStream  
+                FileOutputStream fos = new FileOutputStream("goods1.txt");  
+            是否提高效率：是-->加入OutputStream的缓冲区：BufferedOutputStream  
+                BufferedOutputStream bufo = new BufferedOutputStream(fw);  
+  
+示例3：将键盘录入的数据保存到一个文本文件中  
+    一、明确体系  
+        源：键盘-->读取流-->(InputStream和Reader)  
+        是否是文本：是-->Reader  
+          
+          
+        目的：文件-->写入流-->(OutputStream Writer)  
+        是否纯文本：是-->Writer  
+      
+    二、 明确设备  
+        源：InputStream  
+            设备：键盘 --> 对用对象为：System.in --> InputStream  
+                为了操作方便，转成字符流Reader --> 使用Reader中的转换流：InputStreamReader  
+                InputStreamReader isr = new InputStreamReader(System.in);  
+              
+            是否提高效率：是-->加入Reader中的缓冲区：BufferedReader  
+                BufferedReader bufr = new BufferedReader(isr);  
+                  
+        目的：Writer  
+            设备：键盘上一个文本文件 --> 子类对象：FileWriter  
+                FileWriter fw = new FileWriter("goods1.txt");  
+            是否提高效率：是-->加入Writer的缓冲区：BufferedWriter  
+                BufferedWriter bufw = new BufferedWriter(fw);  
+5.指定编码表(转换流可以指定编码表)
+要求：用UTF-8编码存储一个文本文件
+```java
+import java.io.*;  
+public class IOStreamLaw {  
+  
+    /** 
+     * @param args 
+     */  
+    public static void main(String[] args) throws IOException {  
+        //键盘的最常见写法  
+        BufferedReader bufr = new BufferedReader(new InputStreamReader(System.in));  
+        BufferedWriter bufw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("goods1.txt"),"UTF-8"));  
+        String line = null;  
+        while((line=bufr.readLine())!=null){  
+            if("over".equals(line)) break;  
+            bufw.write(line.toUpperCase());  
+            bufw.newLine();  
+            bufw.flush();  
+        }  
+        bufr.close();  
+    }  
+}
+```
+## 参考资料
+
+
